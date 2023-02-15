@@ -2,6 +2,10 @@
 
 class TicTac
     attr_accessor :symbol
+    @diagonal = [[[0,0],[1,1],[2,2]], [[0,2],[1,1],[2,0]]]
+    class << self
+        attr_reader :diagonal
+    end
 
     def initialize(row,column)
         @row = row
@@ -44,32 +48,101 @@ def PrintBoard(arr)
     end
 end
 
-def inRange?(first, last)
-    
-end
 
-def CheckInput(arr)
-    begin    
+def GetInput(matrix, player)
+    begin
+        print "Enter coordinate: "    
         input = gets.split(',').map(&:to_i).map {|n| n - 1}
-        puts 
-    end while(!(input[0].between?(0,2) && input[1].between?(0,2)) || arr[input[0]][input[1]].symbol != '-')
+    end while(!(input[0].between?(0,2) && input[1].between?(0,2)) || matrix[input[0]][input[1]].symbol != '-')
+    matrix[input[0]][input[1]].symbol = player.symbol
+    return input
+end
+
+def PlayGame(matrix, play_1, play_2)
     
+    continue_game = "yes"
+    while continue_game != "no"
+        winner1 = false
+        winner2 = false
+        while winner1 == false && winner2 ==false
+            print "Player 1 Goes. Input Row and column: "
+            input = GetInput(matrix, play_1)
+            if CheckWinner(matrix,input)
+                puts "Player 1 Wins!"
+                PrintBoard(matrix)
+                break
+            end
+            PrintBoard(matrix)
+
+            print "Player 2 Goes. Input Row and column: "
+            input = GetInput(matrix, play_2)
+            if CheckWinner(matrix,input) 
+                puts "Player 2 Wins!"
+                PrintBoard(matrix)
+                break
+            end
+            PrintBoard(matrix)
+        end
+
+        print "Continue Game?"
+        continue_game = gets.chomp
+        print continue_game
+    end
 end
 
-def PlayGame(arr, play_1, play_2)
-    print "Player 1 Goes. Input Row and column: "
-    CheckInput(arr)
-    arr[input[0]][input[1]].symbol = play_1.symbol
 
-    print "Player 2 Goes. Input Row and column: "
-    CheckInput(arr)
-    arr[input[0]][input[1]].symbol = play_2.symbol
 
+def CheckWinner(matrix,input)
+    tmp = Array.new()
+
+    #Check Diagonals
+    if (TicTac.diagonal[0].include?(input))
+        for i in 0..2
+            tmp.push(matrix[TicTac.diagonal[0][i][0]][TicTac.diagonal[0][i][1]].symbol)
+        end
+        if tmp.uniq.length == 1
+            return true
+        end
+    end
+
+    tmp = Array.new()
+
+    if (TicTac.diagonal[1].include?(input))
+        for i in 0..2
+            tmp.push(matrix[TicTac.diagonal[1][i][0]][TicTac.diagonal[1][i][1]].symbol)
+        end
+        if tmp.uniq.length == 1
+            return true
+        end
+    end
+
+    tmp = Array.new()
+
+    #Check row
+    for i in 0..2
+        tmp.push(matrix[input[0]][i].symbol)
+    end
+
+    if tmp.uniq.length == 1
+        return true
+    end
+
+    tmp = Array.new()
+    
+    #Check column
+    for j in 0..2
+        tmp.push(matrix[j][input[1]].symbol)
+    end
+
+    if tmp.uniq.length == 1
+        return true
+    end
+
+    return false
 
 end
-
 InitializeBoard(board)
 PlayGame(board, player_one, player_two)
-PrintBoard(board)
+
 
 
